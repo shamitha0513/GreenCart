@@ -232,14 +232,14 @@ PLANTS_BY_CATEGORY = {
 }
 
 SERVICES_DATA = [
-    {"name": "Plant Care Consultation", "price": 499, "description": "1-on-1 expert diagnosis of plant health, soil conditions, pest management, and custom care schedules.", "image": "images/services/consultation.svg"},
-    {"name": "Home Plant Maintenance", "price": 999, "description": "Bi-weekly or monthly professional garden and indoor plant cleaning, pruning, fertilizing, and watering service.", "image": "images/services/maintenance.svg"},
-    {"name": "Plant Repotting Service", "price": 349, "description": "Professional repotting into fresh nutrient-rich soil mix with larger aesthetic pots.", "image": "images/services/repotting.svg"},
-    {"name": "Plant Delivery & Setup", "price": 299, "description": "Safe white-glove transport and perfect placement of large plants at your home or balcony.", "image": "images/services/delivery.svg"},
-    {"name": "Garden Setup & Design", "price": 2499, "description": "Complete terrace, backyard, or balcony garden design, planter installation, and layout transformation.", "image": "images/services/garden.svg"},
-    {"name": "Indoor Plant Setup", "price": 1499, "description": "Curated interior styling with air-purifying plants tailored to your living room lighting.", "image": "images/services/indoor.svg"},
-    {"name": "Office Plant Setup", "price": 3499, "description": "Commercial green office installation designed to boost employee productivity and air quality.", "image": "images/services/office.svg"},
-    {"name": "Plant Health Consultation", "price": 599, "description": "Emergency site visit for ailing plants with organic pest treatments and root resuscitation.", "image": "images/services/health.svg"}
+    {"name": "Plant Care Consultation", "price": 499, "description": "1-on-1 expert diagnosis of plant health, soil conditions, pest management, and custom care schedules.", "image": "images/services/consultation.jpg"},
+    {"name": "Home Plant Maintenance", "price": 999, "description": "Bi-weekly or monthly professional garden and indoor plant cleaning, pruning, fertilizing, and watering service.", "image": "images/services/maintenance.jpg"},
+    {"name": "Plant Repotting Service", "price": 349, "description": "Professional repotting into fresh nutrient-rich soil mix with larger aesthetic pots.", "image": "images/services/repotting.jpg"},
+    {"name": "Plant Delivery & Setup", "price": 299, "description": "Safe white-glove transport and perfect placement of large plants at your home or balcony.", "image": "images/services/delivery.jpg"},
+    {"name": "Garden Setup & Design", "price": 2499, "description": "Complete terrace, backyard, or balcony garden design, planter installation, and layout transformation.", "image": "images/services/garden.jpg"},
+    {"name": "Indoor Plant Setup", "price": 1499, "description": "Curated interior styling with air-purifying plants tailored to your living room lighting.", "image": "images/services/indoor.jpg"},
+    {"name": "Office Plant Setup", "price": 3499, "description": "Commercial green office installation designed to boost employee productivity and air quality.", "image": "images/services/office.jpg"},
+    {"name": "Plant Health Consultation", "price": 599, "description": "Emergency site visit for ailing plants with organic pest treatments and root resuscitation.", "image": "images/services/health.jpg"}
 ]
 
 def generate_svg_image_if_missing(filepath, title, category_name):
@@ -447,12 +447,11 @@ def seed_database():
                     status='ACTIVE'
                 )
                 db.session.add(serv)
-                
-                serv_img_path = os.path.join(app.root_path, 'static', s_info['image'])
-                generate_svg_image_if_missing(serv_img_path, s_info['name'], "PLANT SERVICE")
+            else:
+                serv.image = s_info['image']
 
         db.session.commit()
-        print("Seeded Plant Services.")
+        print("Seeded 8 Plant Service Cover Images.")
 
         # 5. Seed Initial Sample Orders for Demonstration & Admin Analytics
         if Order.query.count() == 0 and customer1:
