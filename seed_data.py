@@ -336,25 +336,24 @@ def seed_database():
         # 2. Seed Categories
         category_map = {}
         for cat_info in CATEGORIES_DATA:
+            cat_img_relative = f"images/categories/{cat_info['slug']}.jpg"
             cat = Category.query.filter_by(name=cat_info['name']).first()
             if not cat:
                 cat = Category(
                     name=cat_info['name'],
                     slug=cat_info['slug'],
                     description=cat_info['description'],
-                    image=f"images/categories/{cat_info['slug']}.svg"
+                    image=cat_img_relative
                 )
                 db.session.add(cat)
                 db.session.flush()
+            else:
+                cat.image = cat_img_relative
                 
             category_map[cat_info['name']] = cat
-            
-            # Generate category SVG image
-            cat_img_path = os.path.join(app.root_path, 'static', 'images', 'categories', f"{cat_info['slug']}.svg")
-            generate_svg_image_if_missing(cat_img_path, cat_info['name'], "CATEGORY")
 
         db.session.commit()
-        print("Seeded 12 Categories.")
+        print("Seeded 12 Category Cover Images.")
 
         # 3. Seed 180 Plants (15 per category)
         plant_count = 0
