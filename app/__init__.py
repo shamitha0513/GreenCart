@@ -50,6 +50,14 @@ def create_app():
         
         if os.path.exists(full_disk_path):
             return url_for('static', filename='/'.join(disk_parts))
+
+        # Direct Sibling Check: If requested .svg file, check if .jpg version exists in same directory
+        if len(disk_parts) >= 1:
+            base_name, ext = os.path.splitext(disk_parts[-1])
+            jpg_parts = disk_parts[:-1] + [f"{base_name}.jpg"]
+            jpg_full_path = os.path.join(app.root_path, 'static', *jpg_parts)
+            if os.path.exists(jpg_full_path):
+                return url_for('static', filename='/'.join(jpg_parts))
             
         # Fallback 1: if path points to a missing file or old SVG, check for matching JPG image in plants folder
         filename_only = disk_parts[-1] if disk_parts else ''
