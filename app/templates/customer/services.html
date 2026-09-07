@@ -43,7 +43,8 @@
 
                 <div class="mb-3">
                   <label class="form-label fw-semibold">Preferred Booking Date *</label>
-                  <input type="date" class="form-control" name="booking_date" required>
+                  <input type="date" class="form-control" name="booking_date" min="{{ today_date }}" value="{{ today_date }}" required>
+                  <div class="form-text text-muted small"><i class="bi bi-info-circle me-1"></i>Previous dates are disabled. Please select today or a future date.</div>
                 </div>
 
                 <div class="mb-3">

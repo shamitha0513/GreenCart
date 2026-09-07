@@ -143,6 +143,7 @@ def suggestions():
 @customer_bp.route('/services', methods=['GET', 'POST'])
 def services():
     all_services = Service.query.filter_by(status='ACTIVE').all()
+    today_date = datetime.utcnow().strftime('%Y-%m-%d')
     
     if request.method == 'POST':
         if not current_user.is_authenticated:
@@ -156,6 +157,16 @@ def services():
         
         if not service_id or not booking_date or not address:
             flash('Please fill in all required service booking details.', 'warning')
+            return redirect(url_for('customer.services'))
+            
+        # Block previous/past dates
+        try:
+            selected_date = datetime.strptime(booking_date, '%Y-%m-%d').date()
+            if selected_date < datetime.utcnow().date():
+                flash('Booking date cannot be in the past. Please select today or a future date.', 'danger')
+                return redirect(url_for('customer.services'))
+        except ValueError:
+            flash('Invalid booking date format.', 'danger')
             return redirect(url_for('customer.services'))
             
         booking = ServiceBooking(
@@ -172,7 +183,7 @@ def services():
         flash('Service request submitted successfully! Our team will contact you shortly.', 'success')
         return redirect(url_for('customer.services'))
         
-    return render_template('customer/services.html', services=all_services)
+    return render_template('customer/services.html', services=all_services, today_date=today_date)
 
 @customer_bp.route('/cart')
 @login_required
