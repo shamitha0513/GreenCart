@@ -359,6 +359,19 @@ def seed_database():
         # 3. Seed 180 Plants (15 per category)
         plant_count = 0
         all_seeded_plants = []
+        plants_dir = os.path.join(app.root_path, 'static', 'images', 'plants')
+        all_custom_images = [f for f in os.listdir(plants_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))] if os.path.exists(plants_dir) else []
+        
+        PLANT_IMAGE_ALIASES = {
+            "devil's ivy pothos": "1788814772_11.jpg",
+            "chrysanthemum yellow": "1788808195_yellow.jpg",
+            "stevia sugar plant": "1788813262_Stevia_Medicinal.jpg",
+            "crown of thorns pink": "1788809848_Rebutia_Orange_Flower.jpg",
+            "blue myrtle cactus": "1788809647_Myrtillocactus_geometrizans.jpg",
+            "podocarpus buddhist pine": "1788808254_Black_Pine_Japanese_Bonsai.jpg",
+            "bougainvillea bonsai": "1788808344_Wisteria_Purple_Bonsai.jpg",
+            "cedar atlas bonsai": "1788808312_cedr_atlas_bonasi.jpg"
+        }
         
         for cat_name, plants_list in PLANTS_BY_CATEGORY.items():
             cat_obj = category_map[cat_name]
@@ -366,15 +379,34 @@ def seed_database():
             
             for p_info in plants_list:
                 name, sci_name, price, stock, desc, benefits, care, sun, water, soil, size = p_info
-                plant_slug = name.lower().replace(' ', '_').replace("'", '').replace('-', '_')
+                name_lower = name.lower()
+                plant_slug = name_lower.replace(' ', '_').replace("'", '').replace('-', '_')
                 
+                # Default SVG fallback
                 relative_img_path = f"images/plants/{cat_folder_slug}/{plant_slug}.svg"
                 full_img_path = os.path.join(app.root_path, 'static', relative_img_path)
-                
                 generate_svg_image_if_missing(full_img_path, name, cat_name)
                 
+                # Check for real custom uploaded JPG/PNG image for this plant
+                matched_jpg = None
+                if name_lower in PLANT_IMAGE_ALIASES:
+                    matched_jpg = f"images/plants/{PLANT_IMAGE_ALIASES[name_lower]}"
+                else:
+                    clean_name_parts = [p for p in plant_slug.split('_') if len(p) > 2]
+                    for custom_img in all_custom_images:
+                        c_lower = custom_img.lower().replace('-', '_')
+                        if plant_slug in c_lower or (len(clean_name_parts) >= 2 and all(part in c_lower for part in clean_name_parts[:2])):
+                            matched_jpg = f"images/plants/{custom_img}"
+                            break
+                        
+                final_image_path = matched_jpg if matched_jpg else relative_img_path
+                
                 existing_plant = Plant.query.filter_by(name=name, category_id=cat_obj.id).first()
-                if not existing_plant:
+                if existing_plant:
+                    existing_plant.image = final_image_path
+                    if existing_plant.stock_quantity != stock:
+                        existing_plant.stock_quantity = stock
+                else:
                     discount = 10.0 if plant_count % 3 == 0 else 0.0
                     rating = round(4.0 + (plant_count % 10) * 0.1, 1)
                     
@@ -392,7 +424,7 @@ def seed_database():
                         price=price,
                         discount=discount,
                         stock_quantity=stock,
-                        image=relative_img_path,
+                        image=final_image_path,
                         status='ACTIVE' if stock > 0 else 'OUT_OF_STOCK',
                         rating=rating,
                         reviews_count=(plant_count % 15) + 3

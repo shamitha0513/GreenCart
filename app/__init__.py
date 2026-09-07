@@ -31,7 +31,7 @@ def create_app():
     def img_url(path):
         if not path:
             return url_for('static', filename='images/categories/indoor-plants.svg')
-        path_str = str(path).strip()
+        path_str = str(path).strip().replace('\\', '/')
         if path_str.startswith('http://') or path_str.startswith('https://'):
             return path_str
             
@@ -44,12 +44,27 @@ def create_app():
         else:
             clean_path = path_str
 
-        # Check if the image file exists on the server filesystem
-        full_disk_path = os.path.join(app.root_path, 'static', clean_path)
+        # Split path into OS-native disk parts for reliable cross-platform path checks
+        disk_parts = [p for p in clean_path.split('/') if p]
+        full_disk_path = os.path.join(app.root_path, 'static', *disk_parts)
+        
         if os.path.exists(full_disk_path):
-            return url_for('static', filename=clean_path)
+            return url_for('static', filename='/'.join(disk_parts))
             
-        # Fallback to category SVG if specific image file is missing on deployment
+        # Fallback 1: if path points to a missing file or old SVG, check for matching JPG image in plants folder
+        filename_only = disk_parts[-1] if disk_parts else ''
+        if filename_only:
+            plant_name_clean = filename_only.split('.')[0].lower().replace('-', '_')
+            plants_dir = os.path.join(app.root_path, 'static', 'images', 'plants')
+            if os.path.exists(plants_dir):
+                for custom_img in os.listdir(plants_dir):
+                    if custom_img.lower().endswith(('.jpg', '.png', '.jpeg')):
+                        c_lower = custom_img.lower().replace('-', '_')
+                        clean_parts = [p for p in plant_name_clean.split('_') if len(p) > 2]
+                        if plant_name_clean in c_lower or (len(clean_parts) >= 2 and all(part in c_lower for part in clean_parts[:2])):
+                            return url_for('static', filename=f'images/plants/{custom_img}')
+
+        # Fallback 2: Category SVG default
         return url_for('static', filename='images/categories/indoor-plants.svg')
         
     # Global context processors for templates
