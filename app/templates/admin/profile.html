@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Profile & Registered Users - GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold mb-1">Platform Control Center</span>
+      <h2 class="fw-bold text-success mb-0"><i class="bi bi-person-badge me-2"></i>Admin Profile & System Roster</h2>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary rounded-pill fw-bold">
+      <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Admin Info Card -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="bg-success text-white p-4 text-center">
+          <div class="bg-white text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px; font-size: 2.2rem;">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h4 class="fw-bold mb-1">{{ user.name }}</h4>
+          <span class="badge bg-light text-success fw-bold px-3 py-1 rounded-pill">SYSTEM ADMINISTRATOR</span>
+        </div>
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <label class="text-muted small text-uppercase fw-bold">Email Address</label>
+            <p class="fw-bold text-dark mb-0">{{ user.email }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="text-muted small text-uppercase fw-bold">Phone Number</label>
+            <p class="fw-bold text-dark mb-0">{{ user.phone or 'Not provided' }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="text-muted small text-uppercase fw-bold">Account Status</label>
+            <div><span class="badge bg-success">ACTIVE</span></div>
+          </div>
+          <div>
+            <label class="text-muted small text-uppercase fw-bold">Registered Since</label>
+            <p class="text-muted small mb-0">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'System Init' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Platform Stats -->
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-people me-2 text-success"></i>Registered Accounts</h6>
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded-3">
+          <span class="fw-semibold">Total Registered Customers</span>
+          <span class="badge bg-success rounded-pill px-3 fs-6">{{ total_customers }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded-3">
+          <span class="fw-semibold">Total Delivery Partners</span>
+          <span class="badge bg-warning text-dark rounded-pill px-3 fs-6">{{ total_dps }}</span>
+        </div>
+        <div class="mt-3 text-center">
+          <a href="{{ url_for('admin.manage_users') }}" class="btn btn-sm btn-outline-success rounded-pill w-100 fw-bold">
+            Manage Registered Users Roster <i class="bi bi-arrow-right me-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Admin Profile & Registered Users Roster Table -->
+    <div class="col-lg-8">
+      <!-- Edit Profile Tabs -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-bold text-success mb-3"><i class="bi bi-gear me-2"></i>Update Admin Details & Password</h5>
+        
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+          <li class="nav-item">
+            <button class="nav-link active rounded-pill fw-bold" id="pills-info-tab" data-bs-toggle="pill" data-bs-target="#pills-info" type="button">Edit Personal Info</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link rounded-pill fw-bold ms-2" id="pills-pw-tab" data-bs-toggle="pill" data-bs-target="#pills-pw" type="button">Change Security Password</button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+          <!-- Edit Personal Info -->
+          <div class="tab-pane fade show active" id="pills-info">
+            <form method="POST" action="{{ url_for('admin.profile') }}">
+              <input type="hidden" name="action" value="update_profile">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Admin Full Name</label>
+                  <input type="text" class="form-control" name="name" value="{{ user.name }}" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Email Address</label>
+                  <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Phone Number</label>
+                  <input type="text" class="form-control" name="phone" value="{{ user.phone or '' }}" placeholder="9876543210">
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Save Profile Details</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Change Security Password -->
+          <div class="tab-pane fade" id="pills-pw">
+            <form method="POST" action="{{ url_for('admin.profile') }}">
+              <input type="hidden" name="action" value="change_password">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Current Password</label>
+                  <input type="password" class="form-control" name="old_password" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">New Security Password</label>
+                  <input type="password" class="form-control" name="new_password" required minlength="6">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Confirm New Password</label>
+                  <input type="password" class="form-control" name="confirm_password" required minlength="6">
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Update Password</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registered Users Summary Table -->
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark mb-0"><i class="bi bi-people-fill me-2 text-success"></i>Recent Registered Accounts</h5>
+          <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold">Total: {{ registered_users | length }}</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in registered_users[:8] %}
+              <tr>
+                <td>
+                  <div class="fw-bold text-dark">{{ u.name }}</div>
+                  <div class="small text-muted">{{ u.email }}</div>
+                </td>
+                <td>
+                  {% if u.role == 'ADMIN' %}
+                  <span class="badge bg-danger">ADMIN</span>
+                  {% elif u.role == 'DELIVERY_PARTNER' %}
+                  <span class="badge bg-warning text-dark">DELIVERY PARTNER</span>
+                  {% else %}
+                  <span class="badge bg-success">CUSTOMER</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge bg-{{ 'success' if u.status == 'ACTIVE' else 'secondary' }}">{{ u.status }}</span>
+                </td>
+                <td class="small text-muted">
+                  {{ u.created_at.strftime('%Y-%m-%d') if u.created_at else 'System' }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

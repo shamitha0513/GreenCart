@@ -206,12 +206,21 @@ def delete_plant(plant_id):
 @admin_required
 def update_stock(plant_id):
     plant = Plant.query.get_or_404(plant_id)
-    new_stock = int(request.form.get('stock_quantity', 10))
-    plant.stock_quantity = new_stock
+    quantity = int(request.form.get('stock_quantity', 10))
+    mode = request.form.get('mode', 'add')
+    
+    if mode == 'add':
+        plant.stock_quantity += quantity
+    else:
+        plant.stock_quantity = max(0, quantity)
+        
     if plant.stock_quantity > 0:
         plant.status = 'ACTIVE'
+    else:
+        plant.status = 'OUT_OF_STOCK'
+        
     db.session.commit()
-    flash(f'Stock for {plant.name} updated to {new_stock}.', 'success')
+    flash(f'Stock for "{plant.name}" refilled successfully! Current Total Stock: {plant.stock_quantity} units.', 'success')
     return redirect(request.referrer or url_for('admin.dashboard'))
 
 @admin_bp.route('/plant/quick-update-image/<int:plant_id>', methods=['POST'])
@@ -420,10 +429,77 @@ def services():
             b = ServiceBooking.query.get_or_404(booking_id)
             b.status = request.form.get('status')
             db.session.commit()
-            flash('Service booking status updated.', 'success')
-            
+            flash('Booking status updated.', 'success')
         return redirect(url_for('admin.services'))
         
     all_services = Service.query.all()
-    bookings = ServiceBooking.query.order_by(ServiceBooking.created_at.desc()).all()
+    bookings = ServiceBooking.query.order_by(ServiceBooking.created_at.desc()).all() if hasattr(ServiceBooking, 'created_at') else ServiceBooking.query.all()
     return render_template('admin/services.html', services=all_services, bookings=bookings)
+
+# --- Admin Profile & Registered Users Concept ---
+@admin_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def profile():
+    user = current_user
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'update_profile':
+            user.name = request.form.get('name', '').strip()
+            user.email = request.form.get('email', '').strip()
+            user.phone = request.form.get('phone', '').strip()
+            db.session.commit()
+            flash('Admin Profile updated successfully!', 'success')
+        elif action == 'change_password':
+            old_pw = request.form.get('old_password')
+            new_pw = request.form.get('new_password')
+            confirm_pw = request.form.get('confirm_password')
+            
+            if not user.check_password(old_pw):
+                flash('Current password is incorrect.', 'danger')
+            elif new_pw != confirm_pw:
+                flash('New passwords do not match.', 'danger')
+            elif len(new_pw) < 6:
+                flash('Password must be at least 6 characters long.', 'warning')
+            else:
+                user.set_password(new_pw)
+                db.session.commit()
+                flash('Admin Password updated successfully!', 'success')
+        return redirect(url_for('admin.profile'))
+        
+    registered_users = User.query.order_by(User.created_at.desc()).all()
+    total_customers = sum(1 for u in registered_users if u.role == 'CUSTOMER')
+    total_dps = sum(1 for u in registered_users if u.role == 'DELIVERY_PARTNER')
+    
+    return render_template('admin/profile.html', 
+                           user=user, 
+                           registered_users=registered_users, 
+                           total_customers=total_customers, 
+                           total_dps=total_dps)
+
+@admin_bp.route('/users', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def manage_users():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id', type=int)
+        action = request.form.get('action')
+        target_user = User.query.get_or_404(user_id)
+        
+        if action == 'toggle_status':
+            target_user.status = 'SUSPENDED' if target_user.status == 'ACTIVE' else 'ACTIVE'
+            db.session.commit()
+            flash(f'User "{target_user.name}" status updated to {target_user.status}.', 'info')
+        elif action == 'make_dp':
+            target_user.role = 'DELIVERY_PARTNER'
+            dp = DeliveryPartner.query.filter_by(user_id=target_user.id).first()
+            if not dp:
+                dp = DeliveryPartner(user_id=target_user.id, availability_status="Available", current_status="Ready", vehicle_type="Two Wheeler")
+                db.session.add(dp)
+            db.session.commit()
+            flash(f'User "{target_user.name}" promoted to Delivery Partner.', 'success')
+            
+        return redirect(url_for('admin.manage_users'))
+        
+    all_users = User.query.order_by(User.created_at.desc()).all()
+    return render_template('admin/users.html', users=all_users)
