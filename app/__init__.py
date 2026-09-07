@@ -34,11 +34,23 @@ def create_app():
         path_str = str(path).strip()
         if path_str.startswith('http://') or path_str.startswith('https://'):
             return path_str
+            
         if path_str.startswith('/static/'):
-            return path_str
-        if path_str.startswith('static/'):
-            return '/' + path_str
-        return url_for('static', filename=path_str)
+            clean_path = path_str[8:]
+        elif path_str.startswith('static/'):
+            clean_path = path_str[7:]
+        elif path_str.startswith('/'):
+            clean_path = path_str[1:]
+        else:
+            clean_path = path_str
+
+        # Check if the image file exists on the server filesystem
+        full_disk_path = os.path.join(app.root_path, 'static', clean_path)
+        if os.path.exists(full_disk_path):
+            return url_for('static', filename=clean_path)
+            
+        # Fallback to category SVG if specific image file is missing on deployment
+        return url_for('static', filename='images/categories/indoor-plants.svg')
         
     # Global context processors for templates
     @app.context_processor
