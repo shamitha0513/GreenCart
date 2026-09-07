@@ -112,7 +112,7 @@
     {% for plant in featured_plants %}
     <div class="col-sm-6 col-md-3">
       <div class="card card-plant border-0 shadow-sm h-100 rounded-4 overflow-hidden">
-        <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="card-img-top" style="height: 180px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+        <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="card-img-top" style="height: 180px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.jpg';">
         <div class="card-body p-3 d-flex flex-column">
           <span class="badge bg-success-subtle text-success w-fit mb-1">{{ plant.category.name }}</span>
           <h6 class="fw-bold mb-1">{{ plant.name }}</h6>

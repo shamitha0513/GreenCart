@@ -30,7 +30,7 @@ def create_app():
     @app.template_filter('img_url')
     def img_url(path):
         if not path:
-            return url_for('static', filename='images/categories/indoor-plants.svg')
+            return url_for('static', filename='images/categories/indoor-plants.jpg')
         path_str = str(path).strip().replace('\\', '/')
         if path_str.startswith('http://') or path_str.startswith('https://'):
             return path_str
@@ -73,7 +73,7 @@ def create_app():
                             return url_for('static', filename=f'images/plants/{custom_img}')
 
         # Fallback 2: Category SVG default
-        return url_for('static', filename='images/categories/indoor-plants.svg')
+        return url_for('static', filename='images/categories/indoor-plants.jpg')
         
     # Global context processors for templates
     @app.context_processor

@@ -245,32 +245,12 @@ SERVICES_DATA = [
 def generate_svg_image_if_missing(filepath, title, category_name):
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     if not os.path.exists(filepath):
-        svg_content = f'''<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1b4332"/>
-      <stop offset="50%" stop-color="#2d6a4f"/>
-      <stop offset="100%" stop-color="#52b788"/>
-    </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.3"/>
-    </filter>
-  </defs>
-  <rect width="400" height="400" fill="url(#bg)"/>
-  <circle cx="200" cy="180" r="110" fill="#ffffff" opacity="0.15"/>
-  <g filter="url(#shadow)" transform="translate(140, 100)">
-    <path d="M60 160 C 60 160, 20 100, 20 60 C 20 20, 60 0, 60 0 C 60 0, 100 20, 100 60 C 100 100, 60 160, 60 160 Z" fill="#d8f3dc"/>
-    <path d="M60 160 C 60 160, 30 110, 45 70 C 55 40, 60 10, 60 10 C 60 10, 75 40, 75 70 C 90 110, 60 160, 60 160 Z" fill="#b7e4c7"/>
-    <path d="M60 160 L 60 10" stroke="#1b4332" stroke-width="3" stroke-linecap="round"/>
-    <ellipse cx="60" cy="165" rx="35" ry="12" fill="#74c69d"/>
-    <path d="M35 165 L 45 190 L 75 190 L 85 165 Z" fill="#40916c"/>
-  </g>
-  <rect x="20" y="310" width="360" height="70" rx="10" fill="#ffffff" opacity="0.9"/>
-  <text x="200" y="340" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="bold" fill="#1b4332" text-anchor="middle">{title}</text>
-  <text x="200" y="365" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#52b788" text-anchor="middle">{category_name.upper()} • GREENCART</text>
-</svg>'''
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(svg_content)
+        # Copy real Monstera plant photo as fallback instead of green vector graphic
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        real_photo_src = os.path.join(base_dir, 'app', 'static', 'images', 'plants', '1788814789_13._Monstera_Deliciosa.jpg')
+        if os.path.exists(real_photo_src):
+            import shutil
+            shutil.copy(real_photo_src, filepath)
 
 def seed_database():
     app = create_app()

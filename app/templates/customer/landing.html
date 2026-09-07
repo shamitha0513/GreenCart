@@ -43,7 +43,7 @@
 
       <div class="col-lg-5 text-center">
         <div class="hero-card-image position-relative p-3 bg-white bg-opacity-10 backdrop-blur rounded-4 shadow-lg">
-          <img src="{{ url_for('static', filename='images/categories/indoor-plants.svg') }}" alt="GreenCart Hero Plant" class="img-fluid rounded-4 shadow">
+          <img src="{{ url_for('static', filename='images/categories/indoor-plants.jpg') }}" alt="GreenCart Hero Plant" class="img-fluid rounded-4 shadow">
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@
         <a href="{{ url_for('customer.plants', category=cat.id) }}" class="text-decoration-none">
           <div class="card card-category text-center border-0 shadow-sm p-3 h-100 rounded-4">
             <div class="category-icon-box mx-auto mb-3">
-              <img src="{{ cat.image | img_url }}" alt="{{ cat.name }}" class="img-fluid rounded-circle" style="width: 70px; height: 70px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+              <img src="{{ cat.image | img_url }}" alt="{{ cat.name }}" class="img-fluid rounded-circle" style="width: 70px; height: 70px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.jpg';">
             </div>
             <h6 class="fw-bold text-dark mb-0">{{ cat.name }}</h6>
           </div>
@@ -99,7 +99,7 @@
           {% endif %}
 
           <div class="plant-img-wrapper position-relative overflow-hidden bg-light">
-            <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="card-img-top plant-img" style="height: 240px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+            <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="card-img-top plant-img" style="height: 240px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.jpg';">
           </div>
 
           <div class="card-body d-flex flex-column p-3">

@@ -61,7 +61,7 @@
           <tr>
             <td>
               <div class="position-relative d-inline-block">
-                <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="rounded-3 border" style="width: 55px; height: 55px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="rounded-3 border" style="width: 55px; height: 55px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.jpg';">
                 <button type="button" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;" data-bs-toggle="modal" data-bs-target="#changeImageModal{{ plant.id }}" title="Quick Change Image">
                   <i class="bi bi-camera-fill" style="font-size: 10px;"></i>
                 </button>
@@ -157,7 +157,7 @@
                       <div class="modal-body p-4">
                         <div class="text-center mb-3">
                           <p class="text-muted small mb-2">Current Plant Image:</p>
-                          <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="rounded-4 border shadow-sm" style="max-height: 160px; max-width: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                          <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="rounded-4 border shadow-sm" style="max-height: 160px; max-width: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.jpg';">
                         </div>
 
                         <div class="mb-3">

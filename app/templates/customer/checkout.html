@@ -91,7 +91,7 @@
             {% for item in items %}
             <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
               <div class="d-flex align-items-center">
-                <img src="{{ item.plant.image | img_url }}" alt="{{ item.plant.name }}" class="rounded-2 me-2" style="width: 45px; height: 45px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                <img src="{{ item.plant.image | img_url }}" alt="{{ item.plant.name }}" class="rounded-2 me-2" style="width: 45px; height: 45px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.jpg';">
                 <div>
                   <h6 class="fw-bold small mb-0">{{ item.plant.name }}</h6>
                   <small class="text-muted">Qty: {{ item.quantity }} × ₹{{ item.plant.final_price }}</small>

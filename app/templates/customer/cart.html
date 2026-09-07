@@ -28,7 +28,7 @@
               <tr>
                 <td>
                   <div class="d-flex align-items-center">
-                    <img src="{{ item.plant.image | img_url }}" alt="{{ item.plant.name }}" class="rounded-3 me-3" style="width: 65px; height: 65px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                    <img src="{{ item.plant.image | img_url }}" alt="{{ item.plant.name }}" class="rounded-3 me-3" style="width: 65px; height: 65px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.jpg';">
                     <div>
                       <h6 class="fw-bold mb-0"><a href="{{ url_for('customer.plant_details', plant_id=item.plant.id) }}" class="text-dark text-decoration-none">{{ item.plant.name }}</a></h6>
                       <small class="text-muted">{{ item.plant.category.name }}</small>
