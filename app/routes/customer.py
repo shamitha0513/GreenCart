@@ -1,6 +1,6 @@
 import uuid
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_file
 from flask_login import login_required, current_user
 from app import db
@@ -144,7 +144,9 @@ def suggestions():
 @customer_bp.route('/services', methods=['GET', 'POST'])
 def services():
     all_services = Service.query.filter_by(status='ACTIVE').all()
-    today_date = datetime.utcnow().strftime('%Y-%m-%d')
+    ist = timezone(timedelta(hours=5, minutes=30))
+    ist_now = datetime.now(ist)
+    today_date = ist_now.strftime('%Y-%m-%d')
     
     if request.method == 'POST':
         if not current_user.is_authenticated:
@@ -160,10 +162,10 @@ def services():
             flash('Please fill in all required service booking details.', 'warning')
             return redirect(url_for('customer.services'))
             
-        # Block previous/past dates
+        # Block previous/past dates (using IST today's date)
         try:
             selected_date = datetime.strptime(booking_date, '%Y-%m-%d').date()
-            if selected_date < datetime.utcnow().date():
+            if selected_date < ist_now.date():
                 flash('Booking date cannot be in the past. Please select today or a future date.', 'danger')
                 return redirect(url_for('customer.services'))
         except ValueError:
