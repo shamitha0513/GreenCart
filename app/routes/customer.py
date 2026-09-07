@@ -1,5 +1,6 @@
 import uuid
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+import os
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_file
 from flask_login import login_required, current_user
 from app import db
 from app.models import (
@@ -436,3 +437,17 @@ def profile():
         return redirect(url_for('customer.profile'))
         
     return render_template('customer/profile.html', user=user, address=user_address)
+
+@customer_bp.route('/download-diagrams-pdf')
+def download_diagrams_pdf():
+    pdf_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'GreenCart_Flowcharts_and_Diagrams.pdf')
+    if not os.path.exists(pdf_path):
+        from generate_flowcharts_pdf import draw_block_diagram
+        # Trigger generator script if missing
+        import subprocess
+        subprocess.run(['python', 'generate_flowcharts_pdf.py'], check=False)
+        
+    if os.path.exists(pdf_path):
+        return send_file(pdf_path, as_attachment=True, download_name='GreenCart_Flowcharts_and_Diagrams.pdf')
+    flash('PDF document is currently generating, please refresh.', 'warning')
+    return redirect(url_for('customer.index'))
