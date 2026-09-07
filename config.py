@@ -15,5 +15,6 @@ class Config:
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'app', 'static', 'images', 'plants')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload limit
     
-    # Pagination
+    # Pagination & Cache Settings
     PLANTS_PER_PAGE = 12
+    TEMPLATES_AUTO_RELOAD = True
