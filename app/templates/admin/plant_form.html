@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}{% if plant %}Edit {{ plant.name }}{% else %}Add New Plant{% endif %} - Admin GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <a href="{{ url_for('admin.plants') }}" class="btn btn-outline-secondary btn-sm rounded-pill mb-2"><i class="bi bi-arrow-left me-1"></i> Back to Plants</a>
+      <h3 class="fw-bold text-success mb-0">{% if plant %}Edit Plant: {{ plant.name }}{% else %}Add New Plant Species{% endif %}</h3>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <form method="POST" enctype="multipart/form-data" action="{% if plant %}{{ url_for('admin.edit_plant', plant_id=plant.id) }}{% else %}{{ url_for('admin.add_plant') }}{% endif %}">
+      
+      <div class="row g-3">
+        <!-- Plant Name & Scientific Name -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Plant Name *</label>
+          <input type="text" class="form-control" name="name" value="{{ plant.name if plant else '' }}" required placeholder="e.g. Snake Plant">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Scientific Name</label>
+          <input type="text" class="form-control" name="scientific_name" value="{{ plant.scientific_name if plant else '' }}" placeholder="e.g. Sansevieria trifasciata">
+        </div>
+
+        <!-- Category & Size -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Category *</label>
+          <select class="form-select" name="category_id" required>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if plant and plant.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Plant Size</label>
+          <select class="form-select" name="size">
+            <option value="Small" {% if plant and plant.size == 'Small' %}selected{% endif %}>Small</option>
+            <option value="Medium" {% if not plant or plant.size == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="Large" {% if plant and plant.size == 'Large' %}selected{% endif %}>Large</option>
+          </select>
+        </div>
+
+        <!-- Price, Discount, Stock -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Base Price (INR) *</label>
+          <input type="number" step="0.01" class="form-control" name="price" value="{{ plant.price if plant else '499' }}" required>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Discount (%)</label>
+          <input type="number" step="0.1" class="form-control" name="discount" value="{{ plant.discount if plant else '0.0' }}">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Initial Stock Quantity *</label>
+          <input type="number" class="form-control" name="stock_quantity" value="{{ plant.stock_quantity if plant else '15' }}" required>
+        </div>
+
+        <!-- Care Guidelines -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Sunlight Requirement</label>
+          <input type="text" class="form-control" name="sunlight" value="{{ plant.sunlight if plant else 'Bright Indirect' }}">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Water Requirement</label>
+          <input type="text" class="form-control" name="water_requirement" value="{{ plant.water_requirement if plant else 'Weekly' }}">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Soil Type</label>
+          <input type="text" class="form-control" name="soil_type" value="{{ plant.soil_type if plant else 'Well-draining pot mix' }}">
+        </div>
+
+        <!-- Descriptions -->
+        <div class="col-12">
+          <label class="form-label fw-semibold">Description *</label>
+          <textarea class="form-control" name="description" rows="3" required>{{ plant.description if plant else '' }}</textarea>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Health & Air Purification Benefits</label>
+          <textarea class="form-control" name="benefits" rows="2">{{ plant.benefits if plant else '' }}</textarea>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Care Instructions</label>
+          <textarea class="form-control" name="care_instructions" rows="2">{{ plant.care_instructions if plant else '' }}</textarea>
+        </div>
+
+        <!-- Image Upload or Path -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Upload Image File</label>
+          <input type="file" class="form-control" name="image_file" accept="image/*">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Or Image Path / SVG Asset</label>
+          <input type="text" class="form-control" name="image_url" value="{{ plant.image if plant else '' }}" placeholder="images/plants/indoor/snake_plant.svg">
+        </div>
+
+      </div>
+
+      <div class="mt-4 pt-3 border-top d-flex gap-3">
+        <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm">
+          {% if plant %}Update Plant Info{% else %}Save Plant{% endif %}
+        </button>
+        <a href="{{ url_for('admin.plants') }}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

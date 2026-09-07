@@ -1,0 +1,189 @@
+/* GreenCart Custom Design System & Nature Theme */
+
+:root {
+  --gc-forest: #1b4332;
+  --gc-emerald: #2d6a4f;
+  --gc-mint: #52b788;
+  --gc-sage: #74c69d;
+  --gc-pale: #d8f3dc;
+  --gc-bg: #f8f9fa;
+  --gc-card-bg: #ffffff;
+  --gc-text: #212529;
+  --gc-text-muted: #6c757d;
+  --gc-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  --gc-font: 'Inter', sans-serif;
+  --gc-heading-font: 'Outfit', sans-serif;
+}
+
+/* Dark Mode Overrides (PDF Section 36) */
+[data-bs-theme="dark"] {
+  --gc-bg: #121212;
+  --gc-card-bg: #1e1e1e;
+  --gc-text: #e9ecef;
+  --gc-text-muted: #adb5bd;
+  --gc-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+body {
+  font-family: var(--gc-font);
+  background-color: var(--gc-bg);
+  color: var(--gc-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-text {
+  font-family: var(--gc-heading-font);
+}
+
+/* Navbar Custom Styling */
+.navbar-greencart {
+  background-color: var(--gc-card-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.brand-icon-box {
+  width: 40px;
+  height: 40px;
+  background-color: var(--gc-forest);
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 10px rgba(27, 67, 50, 0.3);
+}
+
+.brand-text {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gc-forest);
+}
+
+[data-bs-theme="dark"] .brand-text {
+  color: #52b788;
+}
+
+.text-accent {
+  color: var(--gc-mint);
+}
+
+/* Theme Switcher Button */
+.btn-theme-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: var(--gc-card-bg);
+  color: var(--gc-forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .btn-theme-toggle {
+  color: #fcc419;
+  border-color: rgba(255,255,255,0.1);
+}
+
+.btn-theme-toggle:hover {
+  transform: rotate(15deg) scale(1.05);
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, var(--gc-forest) 0%, var(--gc-emerald) 60%, var(--gc-mint) 100%);
+  border-radius: 0 0 30px 30px;
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+}
+
+/* Custom Cards */
+.card-custom, .card-plant, .card-category {
+  background-color: var(--gc-card-bg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-plant:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.card-category:hover {
+  transform: translateY(-4px);
+  background-color: var(--gc-pale);
+}
+
+[data-bs-theme="dark"] .card-category:hover {
+  background-color: rgba(45, 106, 79, 0.3);
+}
+
+/* Plant Image Wrapper */
+.plant-img-wrapper {
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+.plant-img {
+  transition: transform 0.5s ease;
+}
+
+.card-plant:hover .plant-img {
+  transform: scale(1.06);
+}
+
+/* Stat Box Icon */
+.stat-icon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* Tracking Stepper CSS (PDF Section 20 & 21) */
+.tracking-stepper .step-circle {
+  transition: all 0.3s ease;
+}
+
+.tracking-stepper .step-item.completed .step-circle {
+  box-shadow: 0 0 0 4px rgba(82, 183, 136, 0.2);
+}
+
+.white-space-pre-line {
+  white-space: pre-line;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.w-fit {
+  width: fit-content;
+}
+
+/* Footer Styling */
+.footer-greencart {
+  background-color: var(--gc-forest);
+}
+
+.footer-links a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  line-height: 2.2;
+}
+
+.footer-links a:hover {
+  color: var(--gc-mint);
+  padding-left: 4px;
+}

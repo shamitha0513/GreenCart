@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  
+  <h2 class="fw-bold text-success mb-4"><i class="bi bi-bag-check me-2"></i>My Plant Orders</h2>
+
+  {% if orders %}
+  <div class="row g-4">
+    {% for order in orders %}
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center border-bottom pb-3 mb-3">
+          <div>
+            <h5 class="fw-bold text-dark mb-1">Order #{{ order.id }}</h5>
+            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>Placed on {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+          </div>
+
+          <div class="mt-2 mt-md-0 d-flex align-items-center gap-2">
+            <!-- Order Status Badge -->
+            {% if order.order_status == 'Delivered' %}
+            <span class="badge bg-success rounded-pill px-3 py-2 fs-6"><i class="bi bi-check-circle me-1"></i>Delivered</span>
+            {% elif order.order_status == 'Cancelled' %}
+            <span class="badge bg-danger rounded-pill px-3 py-2 fs-6"><i class="bi bi-x-circle me-1"></i>Cancelled</span>
+            {% else %}
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fs-6"><i class="bi bi-truck me-1"></i>{{ order.order_status }}</span>
+            {% endif %}
+
+            <a href="{{ url_for('customer.order_track', order_id=order.id) }}" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
+              <i class="bi bi-geo-alt me-1"></i> Track Order
+            </a>
+          </div>
+        </div>
+
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div class="d-flex flex-wrap gap-3 mb-3">
+              {% for item in order.items %}
+              <div class="d-flex align-items-center bg-light p-2 rounded-3 border">
+                <img src="{{ item.plant_image | img_url }}" alt="{{ item.plant_name }}" class="rounded-2 me-2" style="width: 45px; height: 45px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                <div>
+                  <h6 class="fw-bold mb-0 small">{{ item.plant_name }}</h6>
+                  <small class="text-muted">Qty: {{ item.quantity }} × ₹{{ item.price }}</small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="col-md-4 text-md-end border-start">
+            <small class="text-muted d-block mb-1">Total Amount</small>
+            <h4 class="fw-bold text-success mb-2">₹{{ order.grand_total }}</h4>
+            <small class="text-muted d-block">Payment: <strong class="text-dark">{{ order.payment_status }}</strong> ({{ order.payment.payment_method if order.payment else 'COD' }})</small>
+            {% if order.delivery_partner %}
+            <small class="text-muted d-block mt-1"><i class="bi bi-person-badge me-1"></i>Partner: {{ order.delivery_partner.name }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-bag-x display-1 text-muted opacity-50 mb-3"></i>
+    <h4 class="fw-bold text-muted">No Orders Found</h4>
+    <p class="text-muted">You haven't placed any plant orders yet.</p>
+    <a href="{{ url_for('customer.plants') }}" class="btn btn-success rounded-pill px-4">Start Shopping</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

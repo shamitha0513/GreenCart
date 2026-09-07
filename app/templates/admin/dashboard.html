@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - GreenCart{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+    <div>
+      <h2 class="fw-bold text-success mb-1"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h2>
+      <p class="text-muted mb-0">Overview of GreenCart plant sales, live orders, inventory alerts, and performance metrics.</p>
+    </div>
+    <div class="mt-2 mt-md-0 d-flex gap-2">
+      <a href="{{ url_for('admin.add_plant') }}" class="btn btn-success rounded-pill fw-bold shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Add New Plant
+      </a>
+      <a href="{{ url_for('admin.export_payments_csv') }}" class="btn btn-outline-primary rounded-pill fw-bold">
+        <i class="bi bi-download me-1"></i> Export Payment CSV
+      </a>
+    </div>
+  </div>
+
+  <!-- 7 Summary Statistics Cards (PDF Section 24) -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3 col-xl">
+      <div class="card card-custom border-0 shadow-sm p-3 rounded-4 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon-box bg-success-subtle text-success me-3">
+            <i class="bi bi-tree"></i>
+          </div>
+          <div>
+            <h6 class="text-muted mb-0 small">Total Plants</h6>
+            <h3 class="fw-bold mb-0 text-dark">{{ total_plants }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3 col-xl">
+      <div class="card card-custom border-0 shadow-sm p-3 rounded-4 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon-box bg-primary-subtle text-primary me-3">
+            <i class="bi bi-bag-check"></i>
+          </div>
+          <div>
+            <h6 class="text-muted mb-0 small">Total Orders</h6>
+            <h3 class="fw-bold mb-0 text-dark">{{ total_orders }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3 col-xl">
+      <div class="card card-custom border-0 shadow-sm p-3 rounded-4 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon-box bg-info-subtle text-info me-3">
+            <i class="bi bi-people"></i>
+          </div>
+          <div>
+            <h6 class="text-muted mb-0 small">Total Customers</h6>
+            <h3 class="fw-bold mb-0 text-dark">{{ total_customers }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3 col-xl">
+      <div class="card card-custom border-0 shadow-sm p-3 rounded-4 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon-box bg-warning-subtle text-warning me-3">
+            <i class="bi bi-truck"></i>
+          </div>
+          <div>
+            <h6 class="text-muted mb-0 small">Delivery Partners</h6>
+            <h3 class="fw-bold mb-0 text-dark">{{ total_delivery_partners }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3 col-xl">
+      <div class="card card-custom border-0 shadow-sm p-3 rounded-4 bg-white">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon-box bg-danger-subtle text-danger me-3">
+            <i class="bi bi-currency-rupee"></i>
+          </div>
+          <div>
+            <h6 class="text-muted mb-0 small">Total Revenue</h6>
+            <h3 class="fw-bold mb-0 text-success">₹{{ "%.2f"|format(total_revenue) }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card card-custom border-0 shadow-sm p-3 rounded-4 border-start border-warning border-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-1">Pending Orders</h6>
+            <h3 class="fw-bold mb-0 text-warning">{{ pending_orders }}</h3>
+          </div>
+          <a href="{{ url_for('admin.orders', status='Placed') }}" class="btn btn-outline-warning btn-sm rounded-pill">Manage Pending</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card card-custom border-0 shadow-sm p-3 rounded-4 border-start border-success border-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted mb-1">Delivered Orders</h6>
+            <h3 class="fw-bold mb-0 text-success">{{ delivered_orders }}</h3>
+          </div>
+          <a href="{{ url_for('admin.orders', status='Delivered') }}" class="btn btn-outline-success btn-sm rounded-pill">View Delivered</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Alert Widget (PDF Section 44) -->
+  {% if low_stock_plants %}
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-danger border-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-danger mb-0">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Low Stock Alert ({{ low_stock_plants | length }} Plants)
+      </h5>
+      <span class="badge bg-danger rounded-pill px-3 py-2">Action Required</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Plant Name</th>
+            <th>Category</th>
+            <th>Current Stock</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for plant in low_stock_plants %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="rounded-2 me-2" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                <span class="fw-bold text-dark">{{ plant.name }}</span>
+              </div>
+            </td>
+            <td><span class="badge bg-secondary-subtle text-secondary">{{ plant.category.name }}</span></td>
+            <td class="fw-bold text-danger">{{ plant.stock_quantity }} remaining</td>
+            <td>
+              {% if plant.stock_quantity <= 0 %}
+              <span class="badge bg-danger">OUT OF STOCK</span>
+              {% else %}
+              <span class="badge bg-warning text-dark">LOW STOCK</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.update_stock', plant_id=plant.id) }}" class="d-flex gap-2 align-items-center">
+                <input type="number" name="stock_quantity" value="20" min="1" class="form-control form-control-sm w-50" required>
+                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold">Refill</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Graphs & Charts Section (PDF Section 25) -->
+  <div class="row g-4 mb-4">
+    <!-- Category Sales Breakdown Chart -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-pie-chart me-2 text-success"></i>Category-wise Sales</h5>
+        <div class="chart-container position-relative" style="height: 300px;">
+          <canvas id="categorySalesChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Status Distribution Chart -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>Order Status State Machine Distribution</h5>
+        <div class="chart-container position-relative" style="height: 300px;">
+          <canvas id="orderStatusChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Selling Plants Chart -->
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-trophy me-2 text-warning"></i>Top Selling Plants</h5>
+        <div class="chart-container position-relative" style="height: 280px;">
+          <canvas id="topPlantsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Orders Table -->
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history me-2 text-success"></i>Recent Customer Orders</h5>
+      <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-success btn-sm rounded-pill">View All Orders</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Payment Status</th>
+            <th>Order Status</th>
+            <th>Delivery Partner</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td class="fw-bold">#{{ order.id }}</td>
+            <td>{{ order.customer.name }}</td>
+            <td class="fw-bold text-success">₹{{ order.grand_total }}</td>
+            <td>
+              <span class="badge bg-{{ 'success' if order.payment_status == 'Successful' else 'warning' }}">
+                {{ order.payment_status }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-info text-dark">{{ order.order_status }}</span>
+            </td>
+            <td>{{ order.delivery_partner.name if order.delivery_partner else 'Not Assigned' }}</td>
+            <td>
+              <a href="{{ url_for('admin.orders') }}" class="btn btn-sm btn-outline-primary rounded-pill">Manage</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

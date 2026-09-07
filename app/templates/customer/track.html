@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }} Tracking - GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <a href="{{ url_for('customer.my_orders') }}" class="btn btn-outline-secondary btn-sm rounded-pill mb-2"><i class="bi bi-arrow-left me-1"></i> Back to Orders</a>
+      <h3 class="fw-bold text-success mb-0">Track Order #{{ order.id }}</h3>
+    </div>
+    <div>
+      <span class="badge bg-success-subtle text-success fs-6 rounded-pill px-3 py-2" id="livePollingBadge">
+        <i class="bi bi-broadcast me-1 spinner-grow spinner-grow-sm text-success" role="status"></i> Live Status Polling Active
+      </span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Tracking Timeline Box -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        
+        <h5 class="fw-bold text-dark mb-4"><i class="bi bi-geo-alt me-2 text-success"></i>Delivery Progress</h5>
+
+        <!-- Visual Step Tracker -->
+        <div class="tracking-stepper position-relative mb-5">
+          <div class="progress position-absolute top-50 start-0 translate-middle-y w-100" style="height: 4px; z-index: 1;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ (current_index / (statuses|length - 1)) * 100 }}%;" id="progressBar"></div>
+          </div>
+
+          <div class="d-flex justify-content-between position-relative z-2">
+            {% for st in statuses %}
+            {% set step_idx = loop.index0 %}
+            <div class="text-center step-item {% if step_idx <= current_index %}completed{% endif %}" id="step-{{ st.replace(' ', '-') }}">
+              <div class="step-circle mx-auto mb-2 rounded-circle d-flex align-items-center justify-content-center fw-bold {% if step_idx <= current_index %}bg-success text-white{% else %}bg-light text-muted border{% endif %}" style="width: 40px; height: 40px;">
+                {% if step_idx <= current_index %}
+                <i class="bi bi-check-lg"></i>
+                {% else %}
+                {{ loop.index }}
+                {% endif %}
+              </div>
+              <small class="fw-semibold text-dark d-block mb-0">{{ st }}</small>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Live Dynamic Notification Box -->
+        <div class="alert alert-success border-0 rounded-4 p-3 d-flex align-items-center shadow-sm" id="statusMessageAlert">
+          <div class="brand-icon-box bg-white text-success me-3" style="width: 45px; height: 45px; font-size: 1.4rem;">
+            <i class="bi bi-bell-fill"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold mb-1" id="currentStatusTitle">
+              {% if order.order_status == 'Placed' %}Order Placed Successfully
+              {% elif order.order_status == 'Confirmed' %}Order Confirmed by Admin
+              {% elif order.order_status == 'Assigned' %}Delivery Partner Assigned
+              {% elif order.order_status == 'Accepted' %}Order Accepted by Delivery Partner
+              {% elif order.order_status == 'Out for Delivery' %}Out for Delivery
+              {% elif order.order_status == 'Delivered' %}Delivered Successfully! 🌿
+              {% else %}{{ order.order_status }}
+              {% endif %}
+            </h6>
+            <p class="small mb-0 text-success-emphasis" id="currentStatusDesc">
+              Last updated at: <span id="lastUpdatedTime">{{ order.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Ordered Products Table -->
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-bold text-dark mb-3">Items in this Order</h5>
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Plant</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="{{ item.plant_image | img_url }}" alt="{{ item.plant_name }}" class="rounded-2 me-2" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                    <span class="fw-bold">{{ item.plant_name }}</span>
+                  </div>
+                </td>
+                <td>₹{{ item.price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td class="fw-bold text-success">₹{{ item.quantity * item.price }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side Details Sidebar -->
+    <div class="col-lg-4">
+      
+      <!-- Delivery Partner Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-person-badge me-2 text-success"></i>Delivery Partner</h5>
+        <div id="partnerDetailsBox">
+          {% if order.delivery_partner %}
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar-circle bg-success text-white me-3 rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">
+              {{ order.delivery_partner.name[0] }}
+            </div>
+            <div>
+              <h6 class="fw-bold mb-0" id="dpName">{{ order.delivery_partner.name }}</h6>
+              <small class="text-muted"><i class="bi bi-telephone me-1"></i><span id="dpPhone">{{ order.delivery_partner.phone }}</span></small>
+            </div>
+          </div>
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill w-100 py-2">Assigned & Active</span>
+          {% else %}
+          <div class="text-muted small py-2">
+            <i class="bi bi-clock me-1"></i> Admin is currently assigning a delivery partner...
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Shipping Address Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-house me-2 text-success"></i>Shipping Address</h5>
+        <p class="text-secondary small mb-0 white-space-pre-line">{{ order.delivery_address }}</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Initialize Live Polling for Order Status (Section 21 PDF)
+  document.addEventListener("DOMContentLoaded", function() {
+    startOrderLivePolling({{ order.id }});
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Category Management - Admin GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold text-success mb-1"><i class="bi bi-grid me-2"></i>Plant Category Management</h3>
+      <p class="text-muted mb-0">Manage 12 plant categories and associated catalog count.</p>
+    </div>
+    <button type="button" class="btn btn-success rounded-pill fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+      <i class="bi bi-plus-lg me-1"></i> Add Category
+    </button>
+  </div>
+
+  <div class="row g-4">
+    {% for cat in categories %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-custom border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column">
+        <div class="d-flex align-items-center mb-3">
+          <img src="{{ cat.image | img_url }}" alt="{{ cat.name }}" class="rounded-circle me-3" style="width: 55px; height: 55px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+          <div>
+            <h5 class="fw-bold text-dark mb-0">{{ cat.name }}</h5>
+            <span class="badge bg-success-subtle text-success">{{ cat.plants | length }} Plants</span>
+          </div>
+        </div>
+        <p class="text-muted small flex-grow-1 mb-3">{{ cat.description }}</p>
+
+        <div class="d-flex gap-2 pt-2 border-top">
+          <button type="button" class="btn btn-sm btn-outline-primary rounded-pill w-50" data-bs-toggle="modal" data-bs-target="#editCategoryModal{{ cat.id }}">
+            <i class="bi bi-pencil me-1"></i> Edit
+          </button>
+          <form method="POST" action="{{ url_for('admin.delete_category', cat_id=cat.id) }}" class="w-50">
+            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill w-100" {% if cat.plants %}title="Cannot delete: plants attached"{% endif %}>
+              <i class="bi bi-trash me-1"></i> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Edit Modal -->
+      <div class="modal fade" id="editCategoryModal{{ cat.id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content rounded-4 border-0">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title fw-bold">Edit Category</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.categories') }}">
+              <div class="modal-body p-4">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="category_id" value="{{ cat.id }}">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Category Name</label>
+                  <input type="text" class="form-control" name="name" value="{{ cat.name }}" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Description</label>
+                  <textarea class="form-control" name="description" rows="3">{{ cat.description }}</textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success rounded-pill fw-bold">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">Add New Category</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('admin.categories') }}">
+        <div class="modal-body p-4">
+          <input type="hidden" name="action" value="add">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Category Name *</label>
+            <input type="text" class="form-control" name="name" placeholder="e.g. Exotic Ferns" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" name="description" rows="3" placeholder="Category details..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success rounded-pill fw-bold">Add Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

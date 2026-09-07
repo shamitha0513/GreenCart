@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}GreenCart - Bring Nature Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white position-relative py-5">
+  <div class="container py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <span class="badge bg-light text-success px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+          <i class="bi bi-patch-check-fill me-1"></i> #1 Online Plant Shopping & Services
+        </span>
+        <h1 class="display-4 fw-extrabold text-white mb-3">Bring Nature Home with <span class="text-warning">GreenCart</span></h1>
+        <p class="lead text-white-50 mb-4 fs-5">Buy healthy plants, discover perfect plant gifts, and make every space greener with our expert plant care services.</p>
+        
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{{ url_for('customer.plants') }}" class="btn btn-warning btn-lg rounded-pill px-4 fw-bold shadow">
+            <i class="bi bi-shop me-2"></i>Explore Plants
+          </a>
+          <a href="{{ url_for('customer.suggestions') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold">
+            <i class="bi bi-gift me-2"></i>Shop Gift Plants
+          </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-4 mt-5 text-white-50">
+          <div>
+            <h4 class="fw-bold text-white mb-0">180+</h4>
+            <small>Plant Species</small>
+          </div>
+          <div class="vr"></div>
+          <div>
+            <h4 class="fw-bold text-white mb-0">12</h4>
+            <small>Plant Categories</small>
+          </div>
+          <div class="vr"></div>
+          <div>
+            <h4 class="fw-bold text-white mb-0">100%</h4>
+            <small>Healthy Delivery Guarantee</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5 text-center">
+        <div class="hero-card-image position-relative p-3 bg-white bg-opacity-10 backdrop-blur rounded-4 shadow-lg">
+          <img src="{{ url_for('static', filename='images/categories/indoor-plants.svg') }}" alt="GreenCart Hero Plant" class="img-fluid rounded-4 shadow">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Grid Section -->
+<section class="py-5 bg-body-tertiary">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <h6 class="text-success text-uppercase fw-bold mb-1">Explore Collections</h6>
+        <h2 class="fw-bold mb-0">Plant Categories</h2>
+      </div>
+      <a href="{{ url_for('customer.categories') }}" class="btn btn-outline-success rounded-pill fw-bold">View All Categories <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div class="row g-4">
+      {% for cat in categories[:6] %}
+      <div class="col-6 col-md-4 col-lg-2">
+        <a href="{{ url_for('customer.plants', category=cat.id) }}" class="text-decoration-none">
+          <div class="card card-category text-center border-0 shadow-sm p-3 h-100 rounded-4">
+            <div class="category-icon-box mx-auto mb-3">
+              <img src="{{ cat.image | img_url }}" alt="{{ cat.name }}" class="img-fluid rounded-circle" style="width: 70px; height: 70px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+            </div>
+            <h6 class="fw-bold text-dark mb-0">{{ cat.name }}</h6>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Featured Plants Catalog Showcase -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h6 class="text-success text-uppercase fw-bold mb-1">Handpicked Selections</h6>
+      <h2 class="fw-bold">Featured Healthy Plants</h2>
+      <p class="text-muted">Top rated indoor, outdoor, and air purifying plants for your home</p>
+    </div>
+
+    <div class="row g-4">
+      {% for plant in featured_plants %}
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="card card-plant border-0 shadow-sm h-100 rounded-4 overflow-hidden position-relative">
+          
+          {% if plant.discount > 0 %}
+          <span class="badge bg-danger position-absolute top-0 start-0 m-3 rounded-pill px-3 py-2 z-1">
+            {{ plant.discount | int }}% OFF
+          </span>
+          {% endif %}
+
+          <div class="plant-img-wrapper position-relative overflow-hidden bg-light">
+            <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="card-img-top plant-img" style="height: 240px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+          </div>
+
+          <div class="card-body d-flex flex-column p-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">{{ plant.category.name }}</span>
+              <div class="text-warning small">
+                <i class="bi bi-star-fill"></i> {{ plant.rating }}
+              </div>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-1">{{ plant.name }}</h5>
+            <p class="text-muted small italic mb-2">{{ plant.scientific_name }}</p>
+
+            <div class="mt-auto d-flex justify-content-between align-items-center">
+              <div>
+                <span class="fs-5 fw-bold text-success">₹{{ plant.final_price }}</span>
+                {% if plant.discount > 0 %}
+                <span class="text-muted text-decoration-line-through small ms-1">₹{{ plant.price }}</span>
+                {% endif %}
+              </div>
+
+              <div class="d-flex gap-1">
+                <a href="{{ url_for('customer.plant_details', plant_id=plant.id) }}" class="btn btn-outline-secondary btn-sm rounded-circle" title="View Details">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <form method="POST" action="{{ url_for('customer.add_to_cart', plant_id=plant.id) }}">
+                  <button type="submit" class="btn btn-success btn-sm rounded-circle" title="Add to Cart" {% if plant.stock_quantity <= 0 %}disabled{% endif %}>
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+      <a href="{{ url_for('customer.plants') }}" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow">
+        Explore All 180+ Plants <i class="bi bi-arrow-right me-1"></i>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Plant Services Banner -->
+<section class="py-5 bg-success text-white">
+  <div class="container py-3">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <h2 class="display-6 fw-bold mb-3">Professional Plant Care & Maintenance Services</h2>
+        <p class="lead text-white-50 mb-4">From consultation and soil repotting to terrace garden setup and office plant health checks, our experts keep your plants thriving.</p>
+        <a href="{{ url_for('customer.services') }}" class="btn btn-warning btn-lg rounded-pill px-4 fw-bold">
+          <i class="bi bi-tools me-2"></i>Book a Plant Service
+        </a>
+      </div>
+      <div class="col-lg-5 text-center">
+        <div class="bg-white text-dark p-4 rounded-4 shadow-lg text-start">
+          <h5 class="fw-bold text-success mb-3"><i class="bi bi-shield-check me-2"></i>Why Choose GreenCart Services?</h5>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Certified Botanists & Plant Specialists</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Organic Pest Management & Fertilization</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Doorstep Soil Repotting & Doctor Visits</li>
+            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Customized Garden Design & Maintenance</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

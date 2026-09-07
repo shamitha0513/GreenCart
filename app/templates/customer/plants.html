@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Plant Catalog - GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  
+  <!-- Header Banner -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+    <div>
+      <h2 class="fw-bold text-success mb-1"><i class="bi bi-tree me-2"></i>Plant Catalog</h2>
+      <p class="text-muted mb-0">Browse through 180+ healthy indoor, outdoor, flowering, and bonsai plants.</p>
+    </div>
+    <div class="mt-3 mt-md-0">
+      <span class="badge bg-success-subtle text-success fs-6 rounded-pill px-3 py-2">
+        Total Available: {{ plants | length }} Plants
+      </span>
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls Card -->
+  <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-body-tertiary">
+    <form method="GET" action="{{ url_for('customer.plants') }}" id="filterForm">
+      <div class="row g-3">
+        <!-- Search Input -->
+        <div class="col-lg-4 col-md-6">
+          <label class="form-label small fw-semibold">Search Plant Name / Scientific Name</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="e.g. Snake Plant, Aloe Vera...">
+          </div>
+        </div>
+
+        <!-- Category Dropdown -->
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label small fw-semibold">Category</label>
+          <select class="form-select" name="category" onchange="document.getElementById('filterForm').submit()">
+            <option value="">All 12 Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label small fw-semibold">Sort By</label>
+          <select class="form-select" name="sort" onchange="document.getElementById('filterForm').submit()">
+            <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Popular & Best Rating</option>
+            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+          </select>
+        </div>
+
+        <!-- Submit & Reset Buttons -->
+        <div class="col-lg-2 col-md-6 d-flex align-items-end gap-2">
+          <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold">Filter</button>
+          <a href="{{ url_for('customer.plants') }}" class="btn btn-outline-secondary rounded-pill" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Plants Cards Grid -->
+  {% if plants %}
+  <div class="row g-4">
+    {% for plant in plants %}
+    <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="card card-plant border-0 shadow-sm h-100 rounded-4 overflow-hidden position-relative">
+        
+        <!-- Stock Status Badge -->
+        {% if plant.stock_quantity <= 0 %}
+        <span class="badge bg-danger position-absolute top-0 end-0 m-3 rounded-pill px-3 py-2 z-1">Out of Stock</span>
+        {% elif plant.stock_quantity <= 5 %}
+        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 rounded-pill px-3 py-2 z-1">Only {{ plant.stock_quantity }} Left</span>
+        {% else %}
+        <span class="badge bg-success position-absolute top-0 end-0 m-3 rounded-pill px-3 py-2 z-1">In Stock</span>
+        {% endif %}
+
+        {% if plant.discount > 0 %}
+        <span class="badge bg-danger position-absolute top-0 start-0 m-3 rounded-pill px-3 py-2 z-1">
+          {{ plant.discount | int }}% OFF
+        </span>
+        {% endif %}
+
+        <div class="plant-img-wrapper bg-light">
+          <img src="{{ plant.image | img_url }}" alt="{{ plant.name }}" class="card-img-top plant-img" style="height: 220px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+        </div>
+
+        <div class="card-body d-flex flex-column p-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">{{ plant.category.name }}</span>
+            <div class="text-warning small fw-bold">
+              <i class="bi bi-star-fill"></i> {{ plant.rating }}
+            </div>
+          </div>
+
+          <h5 class="fw-bold text-dark mb-1">{{ plant.name }}</h5>
+          <p class="text-muted small italic mb-2">{{ plant.scientific_name }}</p>
+          <p class="card-text text-secondary small mb-3 line-clamp-2">{{ plant.description }}</p>
+
+          <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+            <div>
+              <span class="fs-5 fw-bold text-success">₹{{ plant.final_price }}</span>
+              {% if plant.discount > 0 %}
+              <span class="text-muted text-decoration-line-through small ms-1">₹{{ plant.price }}</span>
+              {% endif %}
+            </div>
+
+            <div class="d-flex gap-2">
+              <a href="{{ url_for('customer.plant_details', plant_id=plant.id) }}" class="btn btn-outline-success btn-sm rounded-pill px-3" title="View Details">
+                View
+              </a>
+              <form method="POST" action="{{ url_for('customer.add_to_cart', plant_id=plant.id) }}">
+                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3" {% if plant.stock_quantity <= 0 %}disabled{% endif %}>
+                  <i class="bi bi-cart-plus me-1"></i> Add
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-flower3 display-1 text-muted opacity-50 mb-3"></i>
+    <h4 class="fw-bold text-muted">No plants found</h4>
+    <p class="text-muted">Try adjusting your search terms or filters.</p>
+    <a href="{{ url_for('customer.plants') }}" class="btn btn-success rounded-pill px-4">View All Plants</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

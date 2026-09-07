@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  
+  <h2 class="fw-bold text-success mb-4"><i class="bi bi-shield-check me-2"></i>Checkout & Payment</h2>
+
+  <form method="POST" action="{{ url_for('customer.checkout') }}">
+    <div class="row g-4">
+      
+      <!-- Delivery Address & Payment Method Column -->
+      <div class="col-lg-7">
+        
+        <!-- Delivery Address Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-geo-alt me-2 text-success"></i>Delivery Address</h5>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Recipient Full Name *</label>
+              <input type="text" class="form-control" name="full_name" value="{{ current_user.name }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Phone Number *</label>
+              <input type="tel" class="form-control" name="phone" value="{{ current_user.phone }}" required>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Street Address *</label>
+              <textarea class="form-control" name="address" rows="2" required>{% if user_address %}{{ user_address.address }}{% endif %}</textarea>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">City *</label>
+              <input type="text" class="form-control" name="city" value="{% if user_address %}{{ user_address.city }}{% else %}Mumbai{% endif %}" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">State *</label>
+              <input type="text" class="form-control" name="state" value="{% if user_address %}{{ user_address.state }}{% else %}Maharashtra{% endif %}" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Pincode *</label>
+              <input type="text" class="form-control" name="pincode" value="{% if user_address %}{{ user_address.pincode }}{% else %}400001{% endif %}" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-wallet2 me-2 text-success"></i>Select Payment Method</h5>
+
+          <div class="form-check p-3 border rounded-3 mb-2 bg-light d-flex align-items-center">
+            <input class="form-check-input me-3 ms-1" type="radio" name="payment_method" id="payUPI" value="UPI" checked>
+            <label class="form-check-label flex-grow-1" for="payUPI">
+              <strong class="d-block text-dark"><i class="bi bi-qr-code-scan me-2 text-primary"></i>UPI Payment (GPay, PhonePe, Paytm)</strong>
+              <small class="text-muted">Instant online simulated payment gateway</small>
+            </label>
+          </div>
+
+          <div class="form-check p-3 border rounded-3 mb-2 bg-light d-flex align-items-center">
+            <input class="form-check-input me-3 ms-1" type="radio" name="payment_method" id="payCard" value="Credit/Debit Card">
+            <label class="form-check-label flex-grow-1" for="payCard">
+              <strong class="d-block text-dark"><i class="bi bi-credit-card-2-front me-2 text-success"></i>Credit / Debit Card</strong>
+              <small class="text-muted">Supports Visa, MasterCard, RuPay</small>
+            </label>
+          </div>
+
+          <div class="form-check p-3 border rounded-3 bg-light d-flex align-items-center">
+            <input class="form-check-input me-3 ms-1" type="radio" name="payment_method" id="payCOD" value="Cash on Delivery">
+            <label class="form-check-label flex-grow-1" for="payCOD">
+              <strong class="d-block text-dark"><i class="bi bi-cash-stack me-2 text-warning"></i>Cash on Delivery (COD)</strong>
+              <small class="text-muted">Pay cash when delivery partner hands over your plants</small>
+            </label>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Order Review & Place Order Button Column -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 90px;">
+          <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">Order Items Review</h5>
+
+          <div class="checkout-items-list mb-3 pe-1" style="max-height: 250px; overflow-y: auto;">
+            {% for item in items %}
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+              <div class="d-flex align-items-center">
+                <img src="{{ item.plant.image | img_url }}" alt="{{ item.plant.name }}" class="rounded-2 me-2" style="width: 45px; height: 45px; object-fit: cover;" onerror="this.onerror=null; this.src='/static/images/categories/indoor-plants.svg';">
+                <div>
+                  <h6 class="fw-bold small mb-0">{{ item.plant.name }}</h6>
+                  <small class="text-muted">Qty: {{ item.quantity }} × ₹{{ item.plant.final_price }}</small>
+                </div>
+              </div>
+              <span class="fw-bold small text-dark">₹{{ item.quantity * item.plant.final_price }}</span>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-bold">₹{{ subtotal }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Delivery Charge</span>
+            <span class="fw-bold text-success">{% if delivery_fee == 0 %}FREE{% else %}₹{{ delivery_fee }}{% endif %}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-3">
+            <span class="text-muted">Tax (GST 5%)</span>
+            <span class="fw-bold">₹{{ tax }}</span>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-4">
+            <span class="fs-5 fw-bold text-dark">Total Payable</span>
+            <span class="fs-4 fw-bold text-success">₹{{ grand_total }}</span>
+          </div>
+
+          <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow">
+            <i class="bi bi-lock-fill me-2"></i>Pay & Place Order (₹{{ grand_total }})
+          </button>
+
+          <small class="text-muted text-center d-block mt-2"><i class="bi bi-shield-check me-1"></i>Stock will be automatically allocated upon confirmation.</small>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+</div>
+{% endblock %}

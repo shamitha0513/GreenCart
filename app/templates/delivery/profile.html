@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery Partner Profile - GreenCart{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h4 class="fw-bold text-dark mb-4"><i class="bi bi-person-gear me-2 text-warning"></i>Delivery Partner Profile</h4>
+
+        <form method="POST" action="{{ url_for('delivery.profile') }}">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Partner Name</label>
+            <input type="text" class="form-control" value="{{ current_user.name }}" disabled>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Email Address</label>
+            <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Contact Phone *</label>
+            <input type="tel" class="form-control" name="phone" value="{{ current_user.phone }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Vehicle Type</label>
+            <select class="form-select" name="vehicle_type">
+              <option value="Two Wheeler" {% if profile and profile.vehicle_type == 'Two Wheeler' %}selected{% endif %}>Two Wheeler (Bike/Scooter)</option>
+              <option value="Three Wheeler" {% if profile and profile.vehicle_type == 'Three Wheeler' %}selected{% endif %}>Three Wheeler (Auto)</option>
+              <option value="Four Wheeler" {% if profile and profile.vehicle_type == 'Four Wheeler' %}selected{% endif %}>Four Wheeler (Van)</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Availability Status *</label>
+            <select class="form-select" name="availability_status" required>
+              <option value="Available" {% if profile and profile.availability_status == 'Available' %}selected{% endif %}>Available for Deliveries</option>
+              <option value="Busy" {% if profile and profile.availability_status == 'Busy' %}selected{% endif %}>Busy with Delivery</option>
+              <option value="Offline" {% if profile and profile.availability_status == 'Offline' %}selected{% endif %}>Offline / Off Duty</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-warning text-dark rounded-pill w-100 py-3 fw-bold shadow-sm">
+            Save Delivery Profile Changes
+          </button>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
